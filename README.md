@@ -21,6 +21,7 @@ Welcome to the enhanced Baileys library - a powerful, feature-rich fork of the p
 - 🔒 **Secure Communication**: End-to-end encryption compliant with WhatsApp protocols
 - ⚡ **Performance Optimized**: Efficient memory usage and faster message processing
 - 🛠️ **Developer Friendly**: Comprehensive documentation and easy-to-use APIs
+- 💾 **Data Persistence**: Built-in in-memory and cache manager stores for data persistence
 
 ## 📋 Table of Contents
 
@@ -46,6 +47,9 @@ Welcome to the enhanced Baileys library - a powerful, feature-rich fork of the p
     - [Media Messages](#media-messages)
     - [Interactive Messages](#interactive-messages)
   - [Handling Events](#handling-events)
+  - [Data Persistence with Store](#data-persistence-with-store)
+    - [In-Memory Store](#in-memory-store)
+    - [Cache Manager Store](#cache-manager-store)
 - [🛠️ Advanced Configuration](#️advanced-configuration)
   - [Custom Logger Integration](#custom-logger-integration)
   - [Session Management](#session-management)
@@ -158,6 +162,7 @@ The main components of the Baileys library are:
 - `src/` - TypeScript source code
 - `Example/` - Example implementations
 - `WAProto/` - WhatsApp Protocol Buffer definitions
+- `lib/Store/` - Data persistence store implementations
 
 ## 🎯 Core Features Explained
 
@@ -313,6 +318,60 @@ sock.ev.on('groups.update', (updates) => {
     console.log('Group update:', update)
   }
 })
+```
+
+### Data Persistence with Store
+
+This fork includes powerful data persistence capabilities through the Store module, allowing you to maintain data across sessions.
+
+#### In-Memory Store
+
+```javascript
+import { makeInMemoryStore } from 'baileys/lib/Store'
+
+// Create an in-memory store
+const store = makeInMemoryStore({
+  logger: console
+})
+
+// Bind the store to the socket events
+store.bind(sock.ev)
+
+// Access stored data
+console.log('Chats:', store.chats)
+console.log('Contacts:', store.contacts)
+console.log('Messages:', store.messages)
+
+// Save/load data to/from file
+store.writeToFile('store-data.json')
+store.readFromFile('store-data.json')
+```
+
+#### Cache Manager Store
+
+```javascript
+import { makeCacheManagerAuthState } from 'baileys/lib/Store'
+
+// Create a cache manager store (requires cache-manager)
+const cacheStore = await makeCacheManagerAuthState(
+  {
+    store: 'memory',
+    options: {
+      max: 100,
+      ttl: 60
+    }
+  },
+  'session-key'
+)
+
+// Use with socket
+const sock = makeWASocket({
+  auth: cacheStore.state,
+  // ... other options
+})
+
+// Save credentials
+await cacheStore.saveCreds()
 ```
 
 ## 🛠️ Advanced Configuration
