@@ -4,8 +4,7 @@
   <h1>Baileys - Enhanced WhatsApp API Client</h1>
   <p>A comprehensive, TypeScript-based library for interacting with the WhatsApp Web API</p>
   
-  [![NPM Version](https://img.shields.io/npm/v/baileys.svg?style=flat-square)](https://www.npmjs.com/package/baileys)
-  [![Downloads](https://img.shields.io/npm/dm/baileys.svg?style=flat-square)](https://www.npmjs.com/package/baileys)
+
   [![License](https://img.shields.io/npm/l/baileys.svg?style=flat-square)](https://github.com/BF667/Baileys/blob/main/LICENSE)
   [![GitHub Issues](https://img.shields.io/github/issues/BF667/Baileys.svg?style=flat-square)](https://github.com/BF667/Baileys/issues)
 </div>
