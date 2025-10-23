@@ -1,0 +1,414 @@
+<div align="center">
+  <br>
+  <img src="https://raw.githubusercontent.com/WhiskeySockets/Baileys/master/Media/logo.png" alt="Baileys Logo" width="150">
+  <h1>Baileys - Enhanced WhatsApp API Client</h1>
+  <p>A comprehensive, TypeScript-based library for interacting with the WhatsApp Web API</p>
+  
+  [![NPM Version](https://img.shields.io/npm/v/baileys.svg?style=flat-square)](https://www.npmjs.com/package/baileys)
+  [![Downloads](https://img.shields.io/npm/dm/baileys.svg?style=flat-square)](https://www.npmjs.com/package/baileys)
+  [![License](https://img.shields.io/npm/l/baileys.svg?style=flat-square)](https://github.com/BF667/Baileys/blob/main/LICENSE)
+  [![GitHub Issues](https://img.shields.io/github/issues/BF667/Baileys.svg?style=flat-square)](https://github.com/BF667/Baileys/issues)
+</div>
+
+## 🌟 Overview
+
+Welcome to the enhanced Baileys library - a powerful, feature-rich fork of the popular WhatsApp Web API client. This version includes numerous improvements, additional features, and a stylish terminal interface to enhance your development experience.
+
+### 🔧 Key Features
+
+- ✅ **Enhanced Feature Set**: Extended capabilities beyond the standard Baileys implementation
+- 🎨 **Stylish Terminal Interface**: Beautiful, colorful terminal output with gradients and animations
+- 📱 **Multi-Device Support**: Full compatibility with WhatsApp's multi-device beta
+- 🔒 **Secure Communication**: End-to-end encryption compliant with WhatsApp protocols
+- ⚡ **Performance Optimized**: Efficient memory usage and faster message processing
+- 🛠️ **Developer Friendly**: Comprehensive documentation and easy-to-use APIs
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+
+Make sure you have the following installed:
+- Node.js v16 or newer
+- npm or yarn package manager
+- Git (for cloning the repository)
+
+### Installing Dependencies
+
+```bash
+# Clone the repository
+git clone https://github.com/BF667/Baileys.git
+cd Baileys
+
+# Install dependencies
+npm install
+# or
+yarn install
+```
+
+### Running the Example
+
+```bash
+# Run the example script
+npm run example
+# or
+yarn example
+```
+
+## 📖 Complete Tutorial
+
+### 1. Setting Up Your Environment
+
+First, ensure you have Node.js installed (v16 or newer). You can check your version with:
+
+```bash
+node --version
+npm --version
+```
+
+If you need to install or upgrade Node.js, visit [nodejs.org](https://nodejs.org/).
+
+### 2. Cloning the Repository
+
+Clone the BF667/Baileys repository to your local machine:
+
+```bash
+git clone https://github.com/BF667/Baileys.git
+cd Baileys
+```
+
+### 3. Installing Dependencies
+
+Install all required dependencies:
+
+```bash
+npm install
+# or if using yarn
+yarn install
+```
+
+### 4. Building the Project
+
+Compile TypeScript files to JavaScript:
+
+```bash
+npm run build
+# or
+yarn build
+```
+
+### 5. Running the Example Script
+
+Start the example bot to test connectivity:
+
+```bash
+npm run example
+# or
+yarn example
+```
+
+### 6. Understanding the Code Structure
+
+The main components of the Baileys library are:
+
+- `lib/` - Compiled JavaScript files
+- `src/` - TypeScript source code
+- `Example/` - Example implementations
+- `WAProto/` - WhatsApp Protocol Buffer definitions
+
+## 🎯 Core Features Explained
+
+### Stylish Terminal Interface
+
+This fork includes a beautiful terminal interface with:
+
+```javascript
+import { stylishLog } from 'baileys/lib/Utils/stylish-terminal'
+
+// Show startup banner
+stylishLog.startup()
+
+// Log connection status
+stylishLog.connection('open', '1234567890@s.whatsapp.net')
+
+// Log messages
+stylishLog.message('+1234567890@s.whatsapp.net', 'Hello World!')
+
+// Success and error messages
+stylishLog.success('Message sent successfully!')
+stylishLog.error('Failed to send message')
+```
+
+### Connecting to WhatsApp
+
+#### QR Code Authentication
+
+```javascript
+import makeWASocket from 'baileys'
+import { useMultiFileAuthState } from 'baileys/lib/Utils/use-multi-file-auth-state'
+
+async function connectWithQR() {
+  const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
+  
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: true
+  })
+  
+  sock.ev.on('creds.update', saveCreds)
+  
+  return sock
+}
+```
+
+#### Pairing Code Authentication
+
+```javascript
+async function connectWithPairingCode() {
+  const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
+  
+  const sock = makeWASocket({
+    auth: state,
+    printQRInTerminal: false
+  })
+  
+  if (!sock.authState.creds.registered) {
+    const phoneNumber = '1234567890' // Replace with your phone number
+    const code = await sock.requestPairingCode(phoneNumber)
+    console.log('Pairing code:', code)
+  }
+  
+  sock.ev.on('creds.update', saveCreds)
+  
+  return sock
+}
+```
+
+### Sending Different Types of Messages
+
+#### Text Messages
+
+```javascript
+await sock.sendMessage(jid, { text: 'Hello World!' })
+```
+
+#### Media Messages
+
+```javascript
+// Image with caption
+await sock.sendMessage(jid, {
+  image: { url: './path/to/image.jpg' },
+  caption: 'Check out this image!'
+})
+
+// Video message
+await sock.sendMessage(jid, {
+  video: { url: './path/to/video.mp4' },
+  caption: 'Awesome video!'
+})
+
+// Audio message
+await sock.sendMessage(jid, {
+  audio: { url: './path/to/audio.mp3' },
+  mimetype: 'audio/mp4'
+})
+```
+
+#### Interactive Messages
+
+```javascript
+// Buttons message
+await sock.sendMessage(jid, {
+  text: 'Choose an option:',
+  buttons: [
+    { buttonId: 'id1', buttonText: { displayText: 'Option 1' }, type: 1 },
+    { buttonId: 'id2', buttonText: { displayText: 'Option 2' }, type: 1 }
+  ]
+})
+
+// List message
+await sock.sendMessage(jid, {
+  text: 'Select an item:',
+  buttonText: 'Click here',
+  sections: [
+    {
+      title: 'Section 1',
+      rows: [
+        { title: 'Item 1', rowId: 'item1' },
+        { title: 'Item 2', rowId: 'item2' }
+      ]
+    }
+  ]
+})
+```
+
+### Handling Events
+
+```javascript
+// Connection updates
+sock.ev.on('connection.update', (update) => {
+  const { connection, lastDisconnect } = update
+  console.log('Connection status:', connection)
+})
+
+// Incoming messages
+sock.ev.on('messages.upsert', async (event) => {
+  for (const msg of event.messages) {
+    if (!msg.message) continue
+    
+    const messageContent = msg.message?.conversation || 
+                          msg.message?.extendedTextMessage?.text ||
+                          'Media message'
+    
+    console.log('Received message:', messageContent)
+  }
+})
+
+// Group updates
+sock.ev.on('groups.update', (updates) => {
+  for (const update of updates) {
+    console.log('Group update:', update)
+  }
+})
+```
+
+## 🛠️ Advanced Configuration
+
+### Custom Logger Integration
+
+```javascript
+import { stylishLogger } from 'baileys/lib/Utils/stylish-terminal'
+
+const sock = makeWASocket({
+  logger: stylishLogger,
+  auth: state
+})
+```
+
+### Session Management
+
+```javascript
+import { useMultiFileAuthState } from 'baileys/lib/Utils/use-multi-file-auth-state'
+
+const { state, saveCreds } = await useMultiFileAuthState('sessions/my_session')
+
+const sock = makeWASocket({
+  auth: state
+})
+
+sock.ev.on('creds.update', saveCreds)
+```
+
+### Message Processing Pipeline
+
+```javascript
+sock.ev.on('messages.upsert', async (event) => {
+  for (const msg of event.messages) {
+    if (!msg.message || !msg.key.remoteJid) continue
+    
+    const jid = msg.key.remoteJid
+    
+    // Skip messages from ourselves
+    if (msg.key.fromMe) continue
+    
+    // Process the message
+    const messageContent = msg.message?.conversation || 
+                          msg.message?.extendedTextMessage?.text ||
+                          '[Media message]'
+    
+    // Send typing indicator
+    await sock.sendPresenceUpdate('composing', jid)
+    
+    // Wait to simulate typing
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // Send reply
+    await sock.sendMessage(jid, {
+      text: `Echo: ${messageContent}`
+    })
+    
+    // Mark as read
+    await sock.readMessages([msg.key])
+  }
+})
+```
+
+## 🤝 Contributing to the Project
+
+We welcome contributions to enhance this Baileys fork! Here's how you can help:
+
+### Forking the Repository
+
+1. Navigate to [https://github.com/BF667/Baileys](https://github.com/BF667/Baileys)
+2. Click the "Fork" button in the top-right corner
+3. Clone your forked repository:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/Baileys.git
+   cd Baileys
+   ```
+
+### Making Changes
+
+1. Create a new branch for your feature:
+   ```bash
+   git checkout -b feature/my-new-feature
+   ```
+
+2. Make your changes to the code
+
+3. Test your changes thoroughly
+
+4. Commit your changes:
+   ```bash
+   git add .
+   git commit -m "Add my new feature"
+   ```
+
+5. Push to your fork:
+   ```bash
+   git push origin feature/my-new-feature
+   ```
+
+6. Create a Pull Request on GitHub
+
+### Development Setup
+
+```bash
+# Clone your fork
+git clone https://github.com/YOUR_USERNAME/Baileys.git
+cd Baileys
+
+# Install dependencies
+yarn install
+
+# Build the project
+yarn build
+
+# Run example
+yarn example
+```
+
+## 📜 License Information
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+The original Baileys library is copyrighted by its respective owners. This fork is an independent modification with additional features and enhancements.
+
+## ⚠️ Important Disclaimer
+
+This project is not affiliated, associated, authorized, endorsed by, or in any way officially connected with WhatsApp or any of its subsidiaries or its affiliates. The official WhatsApp website can be found at https://whatsapp.com.
+
+This software is provided "as is" without warranty of any kind. Use at your own risk. Do not use this software for spamming or any other malicious activities.
+
+## 🔗 Useful Resources
+
+- [GitHub Repository](https://github.com/BF667/Baileys)
+- [Issue Tracker](https://github.com/BF667/Baileys/issues)
+- [Original Baileys](https://github.com/WhiskeySockets/Baileys)
+- [WhatsApp Web](https://web.whatsapp.com)
+- [WhatsApp Business API](https://www.whatsapp.com/business/api)
+
+---
+
+<p align="center">
+  Made with ❤️ by the Baileys Community
+</p>
