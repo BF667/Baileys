@@ -34,6 +34,7 @@ Make sure you have the following installed:
 
 ### Installing Dependencies
 
+**Option 1: Clone and Install (Recommended for Development)**
 ```bash
 # Clone the repository
 git clone https://github.com/BF667/Baileys.git
@@ -43,6 +44,14 @@ cd Baileys
 npm install
 # or
 yarn install
+```
+
+**Option 2: Install Directly from GitHub (For Using as Dependency)**
+```bash
+# Install directly from GitHub
+npm install github:BF667/Baileys
+# or
+yarn add github:BF667/Baileys
 ```
 
 ### Running the Example
