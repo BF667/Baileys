@@ -34,6 +34,8 @@
     "lint:fix": "npm run format && npm run lint -- --fix",
     "prepack": "npm run build",
     "prepare": "npm run build",
+    "prepack": "echo 'BF667 baileys'",
+    "prepare": "echo 'BF667 baileys'",
     "preinstall": "node ./engine-requirements.js",
     "release": "release-it",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest --testMatch '**/*.test.ts'",
