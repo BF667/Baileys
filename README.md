@@ -23,6 +23,42 @@ Welcome to the enhanced Baileys library - a powerful, feature-rich fork of the p
 - ⚡ **Performance Optimized**: Efficient memory usage and faster message processing
 - 🛠️ **Developer Friendly**: Comprehensive documentation and easy-to-use APIs
 
+## 📋 Table of Contents
+
+- [🌟 Overview](#-overview)
+- [🚀 Quick Start Guide](#-quick-start-guide)
+  - [Prerequisites](#prerequisites)
+  - [Installing Dependencies](#installing-dependencies)
+  - [Running the Example](#running-the-example)
+- [📖 Complete Tutorial](#-complete-tutorial)
+  - [Setting Up Your Environment](#1-setting-up-your-environment)
+  - [Cloning the Repository](#2-cloning-the-repository)
+  - [Installing Dependencies](#3-installing-dependencies)
+  - [Building the Project](#4-building-the-project)
+  - [Running the Example Script](#5-running-the-example-script)
+  - [Understanding the Code Structure](#6-understanding-the-code-structure)
+- [🎯 Core Features Explained](#-core-features-explained)
+  - [Stylish Terminal Interface](#stylish-terminal-interface)
+  - [Connecting to WhatsApp](#connecting-to-whatsapp)
+    - [QR Code Authentication](#qr-code-authentication)
+    - [Pairing Code Authentication](#pairing-code-authentication)
+  - [Sending Different Types of Messages](#sending-different-types-of-messages)
+    - [Text Messages](#text-messages)
+    - [Media Messages](#media-messages)
+    - [Interactive Messages](#interactive-messages)
+  - [Handling Events](#handling-events)
+- [🛠️ Advanced Configuration](#️advanced-configuration)
+  - [Custom Logger Integration](#custom-logger-integration)
+  - [Session Management](#session-management)
+  - [Message Processing Pipeline](#message-processing-pipeline)
+- [🤝 Contributing to the Project](#-contributing-to-the-project)
+  - [Forking the Repository](#forking-the-repository)
+  - [Making Changes](#making-changes)
+  - [Development Setup](#development-setup)
+- [📜 License Information](#-license-information)
+- [⚠️ Important Disclaimer](#️important-disclaimer)
+- [🔗 Useful Resources](#-useful-resources)
+
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
