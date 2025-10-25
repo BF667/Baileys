@@ -265,7 +265,7 @@ await sock.sendMessage(jid, {
 #### Interactive Messages
 
 ```javascript
-// Buttons message
+// Buttons message (Legacy format)
 await sock.sendMessage(jid, {
   text: 'Choose an option:',
   buttons: [
@@ -288,6 +288,212 @@ await sock.sendMessage(jid, {
     }
   ]
 })
+```
+
+### 🎯 Advanced Button Tutorial
+
+This section provides a comprehensive tutorial on creating and using interactive buttons with Baileys.
+
+#### Basic Button Setup
+
+```javascript
+// Import the enhanced button utilities
+import { sendButtons } from 'baileys'
+
+// Send simple quick reply buttons
+await sendButtons(sock, jid, {
+  text: 'Choose an option:',
+  footer: 'Footer text (optional)',
+  buttons: [
+    { id: 'opt1', text: 'Option 1' },
+    { id: 'opt2', text: 'Option 2' },
+    { id: 'opt3', text: 'Option 3' }
+  ]
+})
+```
+
+#### Different Button Types
+
+The enhanced button system supports multiple button types:
+
+```javascript
+// Import specific button creation functions
+import { 
+  sendInteractiveMessage, 
+  createQuickReplyButton, 
+  createUrlButton, 
+  createCallButton, 
+  createCopyButton, 
+  createLocationButton, 
+  createCatalogButton 
+} from 'baileys/lib/Utils/buttons'
+
+// 1. Quick Reply Buttons (Most Common)
+const quickReplyButtons = [
+  createQuickReplyButton('yes', 'Yes'),
+  createQuickReplyButton('no', 'No')
+]
+
+// 2. URL Buttons (Opens links)
+const urlButtons = [
+  createUrlButton('Visit Website', 'https://example.com'),
+  createUrlButton('Documentation', 'https://docs.example.com')
+]
+
+// 3. Call Buttons (Initiates phone call)
+const callButtons = [
+  createCallButton('Call Support', '+1234567890')
+]
+
+// 4. Copy Buttons (Copies text to clipboard)
+const copyButtons = [
+  createCopyButton('Copy Promo Code', 'PROMO10')
+]
+
+// 5. Location Buttons (Sends location)
+const locationButtons = [
+  createLocationButton('Send Location')
+]
+
+// 6. Catalog Buttons (For Business accounts)
+const catalogButtons = [
+  createCatalogButton('View Products', '+1234567890')
+]
+```
+
+#### Combining Multiple Button Types
+
+```javascript
+// You can mix different button types in a single message
+await sendInteractiveMessage(sock, jid, {
+  text: 'We have multiple options available:',
+  footer: 'Choose from the options below',
+  title: 'Interactive Menu', // Optional header title
+  interactiveButtons: [
+    createQuickReplyButton('support', 'Contact Support'),
+    createUrlButton('Documentation', 'https://docs.example.com'),
+    createCallButton('Call Now', '+1234567890'),
+    createCopyButton('Copy Promo', 'SAVE10')
+  ]
+})
+```
+
+#### Advanced Button Validation
+
+```javascript
+import { 
+  validateSendButtonsPayload, 
+  validateAuthoringButtons, 
+  InteractiveValidationError 
+} from 'baileys/lib/Utils/buttons'
+
+// Validate button payload before sending
+const buttonPayload = {
+  text: 'Choose an option:',
+  footer: 'Footer text',
+  buttons: [
+    { id: 'opt1', text: 'Option 1' },
+    { id: 'opt2', text: 'Option 2' }
+  ]
+}
+
+try {
+  // Validate the payload
+  const validation = validateSendButtonsPayload(buttonPayload)
+  
+  if (!validation.valid) {
+    console.error('Validation errors:', validation.errors)
+    console.warn('Validation warnings:', validation.warnings)
+  } else {
+    // Send the message if validation passes
+    await sendButtons(sock, jid, buttonPayload)
+  }
+} catch (error) {
+  if (error instanceof InteractiveValidationError) {
+    console.error('Interactive validation error:', error.formatDetailed())
+  } else {
+    console.error('Error sending buttons:', error)
+  }
+}
+```
+
+#### Handling Button Responses
+
+```javascript
+// Handle button responses in message event
+sock.ev.on('messages.upsert', async (m) => {
+  const msg = m.messages[0]
+  
+  // Check if the message is a button response
+  if (msg.message?.buttonsResponseMessage) {
+    const selectedButtonId = msg.message.buttonsResponseMessage.selectedButtonId
+    console.log(`User selected button: ${selectedButtonId}`)
+    
+    // Respond based on button selection
+    switch(selectedButtonId) {
+      case 'yes':
+        await sock.sendMessage(msg.key.remoteJid, { text: 'You selected Yes!' })
+        break
+      case 'no':
+        await sock.sendMessage(msg.key.remoteJid, { text: 'You selected No!' })
+        break
+      default:
+        await sock.sendMessage(msg.key.remoteJid, { text: 'Thank you!' })
+    }
+  }
+  
+  // Handle native flow responses (for enhanced buttons)
+  if (msg.message?.interactiveResponseMessage) {
+    const response = msg.message.interactiveResponseMessage
+    console.log('Native flow response:', response)
+    // Process the response as needed
+  }
+})
+```
+
+#### Complete Button Example
+
+```javascript
+// Complete example combining all button features
+import { 
+  sendInteractiveMessage,
+  createQuickReplyButton,
+  createUrlButton,
+  createCallButton,
+  createCopyButton
+} from 'baileys/lib/Utils/buttons'
+
+async function sendHelpMenu(sock, jid) {
+  try {
+    await sendInteractiveMessage(sock, jid, {
+      text: 'How can we help you today?',
+      footer: 'Select an option below',
+      title: 'Help Center',
+      interactiveButtons: [
+        // Quick reply buttons for common options
+        createQuickReplyButton('support', 'Contact Support'),
+        createQuickReplyButton('faq', 'View FAQ'),
+        createQuickReplyButton('hours', 'Business Hours'),
+        
+        // URL buttons for documentation
+        createUrlButton('Documentation', 'https://docs.example.com'),
+        
+        // Call button for immediate help
+        createCallButton('Call Support', '+1234567890'),
+        
+        // Copy button for promo codes
+        createCopyButton('Copy Help Code', 'HELP123')
+      ]
+    })
+    
+    console.log('Help menu sent successfully!')
+  } catch (error) {
+    console.error('Error sending help menu:', error)
+  }
+}
+
+// Usage
+await sendHelpMenu(sock, jid)
 ```
 
 ### Handling Events

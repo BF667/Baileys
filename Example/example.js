@@ -1,6 +1,13 @@
 import makeWASocket from '../lib/index.js'
 import { useMultiFileAuthState } from '../lib/Utils/use-multi-file-auth-state.js'
 import { stylishLog } from '../lib/Utils/stylish-terminal.js'
+import { 
+    sendInteractiveMessage,
+    createQuickReplyButton,
+    createUrlButton,
+    createCallButton,
+    createCopyButton
+} from '../lib/Utils/buttons.js'
 
 async function connectToWhatsApp() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys')
@@ -67,9 +74,79 @@ async function connectToWhatsApp() {
                 // Mark as read
                 await sock.readMessages([msg.key])
                 
+                // Check if message contains button-related commands
+                if (messageContent.toLowerCase().includes('menu') || messageContent.toLowerCase().includes('help')) {
+                    // Send interactive buttons menu
+                    await sendInteractiveMessage(sock, jid, {
+                        text: 'Welcome to our bot! Please select an option:',
+                        footer: 'Choose from the options below',
+                        title: 'Bot Menu',
+                        interactiveButtons: [
+                            createQuickReplyButton('support', 'Contact Support'),
+                            createUrlButton('Documentation', 'https://example.com'),
+                            createCallButton('Call Support', '+1234567890'),
+                            createCopyButton('Copy Code', 'SUPPORT123')
+                        ]
+                    })
+                } else if (messageContent.toLowerCase().includes('button')) {
+                    // Send simple quick reply buttons
+                    const { sendButtons } = await import('../lib/Utils/buttons.js')
+                    await sendButtons(sock, jid, {
+                        text: 'Choose an option:',
+                        footer: 'Powered by Baileys buttons',
+                        buttons: [
+                            { id: 'opt1', text: 'Option 1' },
+                            { id: 'opt2', text: 'Option 2' },
+                            { id: 'opt3', text: 'Option 3' }
+                        ]
+                    })
+                } else {
+                    // Send the echo reply
+                    await sock.sendMessage(jid, {
+                        text: `🤖 Echo: ${messageContent}`
+                    })
+                }
+                
                 stylishLog.success(`Replied to ${jid}`)
             } catch (error) {
                 stylishLog.error(`Failed to send message: ${error.message}`)
+            }
+        }
+    })
+
+    // Handle button responses
+    sock.ev.on('messages.upsert', async (event) => {
+        for (const msg of event.messages) {
+            if (!msg.message) continue
+            
+            // Check for button responses
+            if (msg.message?.buttonsResponseMessage) {
+                const selectedButtonId = msg.message.buttonsResponseMessage.selectedButtonId
+                const jid = msg.key.remoteJid
+                stylishLog.info(`Button selected: ${selectedButtonId} from ${jid}`)
+                
+                // Handle different button responses
+                let responseText = ''
+                switch(selectedButtonId) {
+                    case 'support':
+                        responseText = 'You selected to contact support. Please wait while we connect you.'
+                        break
+                    case 'opt1':
+                        responseText = 'You selected Option 1! Great choice.'
+                        break
+                    case 'opt2':
+                        responseText = 'You selected Option 2! Good pick.'
+                        break
+                    case 'opt3':
+                        responseText = 'You selected Option 3! Excellent!'
+                        break
+                    default:
+                        responseText = `Thank you for selecting: ${selectedButtonId}`
+                }
+                
+                if (responseText) {
+                    await sock.sendMessage(jid, { text: responseText })
+                }
             }
         }
     })
