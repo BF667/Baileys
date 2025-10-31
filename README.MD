@@ -1,84 +1,204 @@
-# Baileys 
+# <img src="https://github.com/BF667/Baileys/blob/main/assets/baileys.png?raw=true" width="40" height="40"> Baileys - Advanced WhatsApp Web API
 
-<p><em>Custom WhatsApp library built upon Baileys — enhanced, modernized, and elegant ✨</em></p>
+<div align="center">
+  
+  [![NPM](https://nodei.co/npm/Baileys.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/Baileys/)
+
+  [![npm version](https://badge.fury.io/js/Baileys.svg)](https://badge.fury.io/js/Baileys)
+  [![Downloads](https://img.shields.io/npm/dm/Baileys.svg)](https://www.npmjs.com/package/Baileys)
+  [![License](https://img.shields.io/npm/l/Baileys.svg)](https://github.com/BF667/Baileys/blob/main/LICENSE)
 
 </div>
 
+## 🌟 Features
 
+- ✅ **Multi-device Support** - Modern WhatsApp Web API
+- 🔐 **Secure Authentication** - Advanced cryptographic protocols
+- ⚡ **High Performance** - Optimized for speed and efficiency
+- 🛡️ **Enhanced Security** - Input validation and sanitization
+- 📊 **Comprehensive Logging** - Detailed debugging capabilities
+- 🔄 **Auto-reconnection** - Robust connection management
+- 📱 **Rich Media Support** - Handle images, videos, documents
+- 💬 **Message Management** - Full chat interaction capabilities
+- 🤖 **Bot Framework Ready** - Easy to build WhatsApp bots
+- 📢 **Channel Support** - Send messages to WhatsApp Channels
+- 🖱️ **Interactive Messages** - Create buttons and quick replies
+- 🖼️ **Album Messaging** - Send grouped media as albums
+- 👤 **LID Grouping** - Handle latest @lid addressing style
+- 🤖 **AI Message Style** - Add stylized “AI” icon to messages
+- 📷 **HD Profile Pics** - Upload full-size profile pictures
+- 🔐 **Custom Pairing Codes** - Generate alphanumeric pairing codes
 
----
+## 🚀 Quick Start
 
-## 📌 Overview
+### Installation
+```bash
+npm install Baileys
+```
 
->this is a refined version of the Baileys library with cleaner API usage, exclusive features like album messaging, newsletter controls, and full-size profile uploads — tailored for modern WhatsApp automation needs.
+### Basic Usage
+```javascript
+import { makeWASocket, DisconnectReason } from 'Baileys'
+import { Boom } from '@hapi/boom'
 
-
-## 📦 Installation
-
-### Via `package.json` Fork Baileys (NPM)
-@whiskeysockets/baileys
-```json
-"dependencies": {
-  "baileys": "github:BF667/Baileys"
+async function connectToWhatsApp() {
+  const socket = makeWASocket({
+    // Your config options here
+    printQRInTerminal: true,
+    browser: ['Baileys', 'Chrome', '1.0.0'] // User agent
+  })
+  
+  socket.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update
+    if(connection === 'close') {
+      const shouldReconnect = (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
+      console.log('connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect)
+      // reconnect if not logged out
+      if(shouldReconnect) {
+        connectToWhatsApp()
+      }
+    } else if(connection === 'open') {
+      console.log('opened connection')
+    }
+  })
+  
+  // Send a message
+  await socket.sendMessage('1234567890@s.whatsapp.net', { text: 'Hello there!' })
 }
+
+connectToWhatsApp()
 ```
 
+## 📚 API Documentation
 
-Or via terminal
-```bash
-npm install github:BF667/Baileys
+### Core Functions
+
+#### `makeWASocket(config)`
+
+Creates a new WhatsApp socket connection with the specified configuration.
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `config` | `SocketConfig` | Configuration object for the connection |
+
+**Config Options:**
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `waWebSocketUrl` | `string` | - | WebSocket URL to connect to WhatsApp |
+| `connectTimeoutMs` | `number` | 60_000 | Connection timeout in milliseconds |
+| `defaultQueryTimeoutMs` | `number` | 60_000 | Default timeout for queries |
+| `keepAliveIntervalMs` | `number` | 30_000 | Ping-pong interval for WebSocket |
+| `logger` | `Logger` | - | Logger instance |
+| `browser` | `[string, string, string]` | `['Baileys', 'Chrome', '1.0.0']` | Browser description |
+| `auth` | `AuthenticationState` | - | Authentication state |
+| `printQRInTerminal` | `boolean` | `false` | Whether to print QR code in terminal |
+| `makeSignalRepository` | `Function` | - | Function to create signal repository |
+
+### Events
+
+#### Connection Events
+
+- `connection.update` - Connection state changes
+  - `connection`: current connection state (`'connecting'`, `'open'`, `'close'`)
+  - `lastDisconnect`: reason for disconnection
+  - `qr`: QR code string when waiting for scan
+
+- `creds.update` - Credentials update
+  - Called when authentication credentials are updated
+  - Store these credentials to maintain session
+
+### Message Handling
+
+#### Sending Messages
+
+```javascript
+// Send text message
+await socket.sendMessage('1234567890@s.whatsapp.net', { text: 'Hello!' })
+
+// Send image
+await socket.sendMessage(
+  '1234567890@s.whatsapp.net', 
+  { 
+    image: { url: './path/to/image.jpg' },
+    caption: 'Beautiful image!'
+  }
+)
+
+// Send video
+await socket.sendMessage(
+  '1234567890@s.whatsapp.net', 
+  { 
+    video: { url: './path/to/video.mp4' },
+    caption: 'Check out this video!'
+  }
+)
 ```
 
-Importing (**for those who don't fork another repository**)
+## 🔧 Advanced Configuration
 
-ESM
-```bash
-import makeWASocket from 'Baileys'
+### Authentication State Management
+
+```javascript
+import { useMultiFileAuthState } from 'Baileys'
+
+// Use file-based authentication state
+const { state, saveCreds } = await useMultiFileAuthState('auth_info')
+
+const socket = makeWASocket({
+  auth: state,
+  printQRInTerminal: true
+})
+
+// Save credentials automatically
+socket.ev.on('creds.update', saveCreds)
 ```
 
-CJS
-```bash
-const { default: makeWASocket } = require('Baileys')
+### Custom Logger
+
+```javascript
+import { Logger } from 'pino'
+
+const logger = Logger({
+  level: 'trace',
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true
+    }
+  }
+})
+
+const socket = makeWASocket({
+  logger,
+  // ... other options
+})
 ```
 
-
----
-
-## 🌟 Key Features
-
-| Category         | Description                                                                 |
-|------------------|-----------------------------------------------------------------------------|
-| 📢 Channels       | Seamlessly send messages to WhatsApp Channels.                              |
-| 🖱️ Buttons         | Create interactive messages with button options and quick replies.          |
-| 🖼️ Albums          | Send grouped images or videos as an album (carousel-like format).          |
-| 👤 LID Grouping    | Handle group operations using the latest @lid addressing style.             |
-| 🤖 AI Message Style | Add a stylized “AI” icon to messages.                                      |
-| 📷 HD Profile Pics | Upload full-size profile pictures without cropping.                        |
-| 🔐 Pairing Code    | Generate custom alphanumeric pairing codes.                                |
-| 🛠️ Dev Experience  | Reduced noise from logs with optimized libsignal printouts.                 |
-
----
-
-## 💡 Use Case Examples
-
-<details>
-<summary><strong>📬 Newsletter Control</strong></summary>
+### Newsletter and Channel Features
 
 ```javascript
 // Create a newsletter
-await sock.newsletterCreate("Stuff");
+await sock.newsletterCreate("My Newsletter");
 
-// Change description
-await sock.newsletterUpdateDescription("xxdd@newsletter", "Fresh updates weekly");
+// Update newsletter description
+await sock.newsletterUpdateDescription("xxxx@newsletter", "Fresh updates weekly");
 
-// Send a reaction to a channel message
-await sock.newsletterReactMessage("xxxxd@newsletter", "175", "🔥");
+// Send reaction to channel message
+await sock.newsletterReactMessage("xxxx@newsletter", "messageId", "🔥");
+
+// Send album (multiple media as one message)
+const media = [
+  { image: { url: "https://example.com/pic1.jpg" } },
+  { video: { url: "https://example.com/clip.mp4" } }
+];
+
+await sock.sendMessage(id, { album: media, caption: "Memories 💫" });
 ```
 
-</details>
-
-<details>
-<summary><strong>📌 Interactive Messaging</strong></summary>
+### Interactive Messages with Buttons
 
 ```javascript
 const buttons = [
@@ -88,42 +208,15 @@ const buttons = [
 
 const msg = {
   text: "Choose one:",
-  footer: "made with with love 💜",
+  footer: "Made with love 💜",
   buttons,
   headerType: 1
 };
 
-await sock.sendMessage(id, msg, { quoted: null });
+await sock.sendMessage(id, msg);
 ```
 
-</details>
-
-<details>
-<summary><strong>🖼️ Send Album</strong></summary>
-
-```javascript
-const media = [
-  { image: { url: "https://example.com/pic1.jpg" } },
-  { video: { url: "https://example.com/clip.mp4" } }
-];
-
-await sock.sendMessage(id, { album: media, caption: "Memories 💫" }, { quoted: null });
-```
-
-</details>
-
-<details>
-<summary><strong>🔐 Pairing with Custom Code</strong></summary>
-
-```javascript
-const code = await sock.requestPairingCode("62xxxxxxxxxx", "1234N501");
-console.log("Your Pairing Code:", code);
-```
-
-</details>
-
-<details>
-<summary><strong>📊 Poll Creation</strong></summary>
+### Poll Messages
 
 ```javascript
 const pollMessage = {
@@ -135,10 +228,7 @@ const pollMessage = {
 await sock.sendMessage(id, { poll: pollMessage });
 ```
 
-</details>
-
-<details>
-<summary><strong>📍 Location Sharing</strong></summary>
+### Location Sharing
 
 ```javascript
 const locationMessage = {
@@ -151,10 +241,7 @@ const locationMessage = {
 await sock.sendMessage(id, { location: locationMessage });
 ```
 
-</details>
-
-<details>
-<summary><strong>👥 Group Management</strong></summary>
+### Group Management
 
 ```javascript
 // Create group
@@ -167,31 +254,82 @@ await sock.groupAdd(group.id, [number3, number4]);
 await sock.groupUpdateDescription(group.id, "This is our awesome group!");
 ```
 
-</details>
+### Custom Pairing Code
+
+```javascript
+// Request pairing with custom code
+const code = await sock.requestPairingCode("62xxxxxxxxxx", "CUSTOM1234");
+console.log("Your Pairing Code:", code);
+```
+
+## 🛡️ Security Features
+
+- **Input Validation**: All inputs are validated to prevent injection attacks
+- **Connection Security**: Secure WebSocket connections with proper authentication
+- **Data Sanitization**: Automatic sanitization of user inputs
+- **Rate Limiting**: Built-in protection against excessive requests
+- **Phone Number Validation**: Comprehensive phone number format checking
+
+## ⚡ Performance Optimizations
+
+- **Connection Pooling**: Efficient connection management
+- **Caching**: Built-in caching for frequently accessed data
+- **Memory Management**: Proper cleanup of event listeners
+- **Asynchronous Operations**: Non-blocking operations for better performance
+- **Pre-key Management**: Automated handling of cryptographic keys
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+1. **Connection Problems**
+   - Ensure your WhatsApp account is not banned
+   - Check your network connection
+   - Verify authentication credentials
+
+2. **QR Code Issues**
+   - Update your WhatsApp Web in browser
+   - Clear browser cache and cookies
+   - Try different browsers
+
+3. **Authentication Failures**
+   - Use fresh authentication credentials
+   - Check for session expiration
+
+4. **Media Upload Problems**
+   - Ensure media files are accessible
+   - Check file size limits
+   - Verify file formats
+
+## 📞 Support
+
+For support and questions, please open an issue in the repository.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**BF667** - [GitHub Profile](https://github.com/BF667)
+
+## 🙏 Acknowledgments
+
+- Thanks to [adiwajshing](https://github.com/adiwajshing) for the original Baileys library
+- Thanks to [whiskeysockets](https://github.com/whiskeysockets) for continued Baileys development
+- The WhatsApp Web API community
+- All contributors who help maintain and improve this library
 
 ---
 
-**Note:** Replace `id` with the actual recipient ID and `sock` with your WhatsApp socket connection variable.
+<div align="center">
 
+**Made with ❤️ for the WhatsApp Web API community**
 
----
+[![Stargazers repo](https://reporoster.com/stars/BF667/Baileys)](https://github.com/BF667/Baileys/stargazers)
 
-<details>
-  <summary>🙏 <strong>TQTO (Thanks To)</strong></summary>
-
-Terima kasih kepada pihak-pihak yang telah memberikan dukungan, inspirasi, dan kontribusi secara langsung maupun tidak langsung dalam pengembangan proyek ini:
-
-- **Allah SWT**  
-  For all His grace and ease.
-
-- **Parent**  
-  For your continued love, prayers, and support.
-
-- **[Nstar-Y / Nstar-bail](https://github.com/Nstar-Y)**  
-  As an initial foundation and reference in the development of this system.
-
-
-</details>
-
-> [!CAUTION]
-> Built on top of the WhiskeySockets/Baileys project. All original core logic credits go to their team. elaina-bail extends it with thoughtful UX and DX improvements.
+</div>
