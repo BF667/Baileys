@@ -66,13 +66,13 @@ const { default: makeWASocket } = require('Baileys')
 
 ```javascript
 // Create a newsletter
-await sock.newsletterCreate("Elaina Updates");
+await sock.newsletterCreate("Stuff");
 
 // Change description
-await sock.newsletterUpdateDescription("elaina@newsletter", "Fresh updates weekly");
+await sock.newsletterUpdateDescription("xxdd@newsletter", "Fresh updates weekly");
 
 // Send a reaction to a channel message
-await sock.newsletterReactMessage("elaina@newsletter", "175", "🔥");
+await sock.newsletterReactMessage("xxxxd@newsletter", "175", "🔥");
 ```
 
 </details>
@@ -88,7 +88,7 @@ const buttons = [
 
 const msg = {
   text: "Choose one:",
-  footer: "From Elaina with love 💜",
+  footer: "made with with love 💜",
   buttons,
   headerType: 1
 };
@@ -116,7 +116,7 @@ await sock.sendMessage(id, { album: media, caption: "Memories 💫" }, { quoted:
 <summary><strong>🔐 Pairing with Custom Code</strong></summary>
 
 ```javascript
-const code = await sock.requestPairingCode("62xxxxxxxxxx", "ELAINA01");
+const code = await sock.requestPairingCode("62xxxxxxxxxx", "1234N501");
 console.log("Your Pairing Code:", code);
 ```
 
